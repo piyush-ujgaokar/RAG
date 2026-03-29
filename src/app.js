@@ -1,14 +1,25 @@
-const express=require('express')
-const {PDFParse}=require('pdf-parse')
+import express from 'express'
+import {PDFParse} from 'pdf-parse'
+import fs from 'fs'
+import {RecursiveCharacterTextSplitter} from '@langchain/textsplitters'
+
 const app=express()
 
-async function extractText(){
-    const parser=new PDFParse('./Full Stack 2.pdf')
+    let dataBuffer=fs.readFileSync('./Full Stack 2.pdf')
+    const parser=new PDFParse({
+        data:dataBuffer
+    })
     const data=await parser.getText()
     console.log(data)
-}
-
-extractText()
 
 
-module.exports=app
+
+const textSplitter=new RecursiveCharacterTextSplitter({
+    chunkSize:300,
+    chunkOverlap:0
+})
+
+const chunks=await textSplitter.splitText(data.text)
+console.log(chunks,chunks.length)
+
+export default app
